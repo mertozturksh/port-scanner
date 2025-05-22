@@ -209,12 +209,12 @@
                                 <option value="5">5</option>
                                 <option value="10">10</option>
                                 <option value="20">20</option>
-                                <option value="50">50</option>
+                                <option value="50" selected>50</option>
                                 <option value="100">100</option>
                             </select>
                             <input type="number" min="1" max="100" class="form-control" id="thread_count"
                                 name="thread_count" placeholder="Thread sayısı"
-                                value="{{ request.form.thread_count or '1' }}">
+                                value="{{ request.form.thread_count or '50' }}">
                         </div>
                     </div>
                 </div>
@@ -297,7 +297,7 @@
                 // Eğer açılışta inputlar boşsa default değer ata
                 if (isOpen) {
                     if (!portInput.value) portInput.value = '80,443';
-                    if (!threadSelect.value) threadSelect.value = '1';
+                    if (!threadSelect.value) threadSelect.value = '50';
                 }
             }, 350); // animasyon bitince
         });
@@ -308,7 +308,7 @@
             threadSelect.required = isOpen;
             if (isOpen) {
                 if (!portInput.value) portInput.value = '80,443';
-                if (!threadSelect.value) threadSelect.value = '1';
+                if (!threadSelect.value) threadSelect.value = '50';
             }
         });
         // Thread önerisi seçilince inputa yaz
