@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="tr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Port Scanner</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #23272f;
+            color: #e3e3e3;
+        }
+
+        .main-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-top: 32px;
+            color: #f5f6fa;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            color: #b0b3b8;
+            margin-bottom: 24px;
+        }
+
+        .section-box {
+            background: #2d323b;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px #0003;
+            padding: 28px 24px 24px 24px;
+            margin-bottom: 32px;
+            border: 1px solid #23272f;
+        }
+
+        .form-control,
+        .form-select {
+            background: #23272f;
+            color: #e3e3e3;
+            border: 1px solid #444950;
+            border-radius: 10px;
+            box-shadow: none;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            background: #23272f;
+            color: #fff;
+            border: 1.5px solid #4f8cff;
+            box-shadow: 0 0 0 0.1rem #4f8cff33;
+        }
+
+        .form-select option {
+            background: #23272f;
+            color: #e3e3e3;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #b0b3b8;
+        }
+
+        .table {
+            background: #23272f;
+            color: #e3e3e3;
+        }
+
+        .table-bordered th,
+        .table-bordered td {
+            border-color: #444950;
+        }
+
+        .table thead {
+            background: #23272f;
+            color: #b0b3b8;
+        }
+
+        .btn-primary {
+            background: #3ba55d;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 8px #3ba55d22;
+        }
+
+        .btn-primary:hover,
+        .btn-primary:focus {
+            background: #2e8647;
+        }
+
+        .form-select,
+        .form-control {
+            min-height: 44px;
+        }
+
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        /* Loading spinner stilleri */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(35, 39, 47, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .spinner-container {
+            text-align: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #3ba55d;
+            border-top: 5px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .spinner-text {
+            color: #e3e3e3;
+            margin-top: 15px;
+            font-size: 18px;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner-container">
+            <div class="spinner"></div>
+            <div class="spinner-text">Port Taraması Yapılıyor...</div>
+        </div>
+    </div>
+
+    <div class="container" style="max-width: 800px;">
+        <div class="text-center">
+            <div class="main-title">Port Scanner</div>
+            <div class="subtitle">Ağ Güvenliği Dersi Projesi</div>
+        </div>
+        <div class="section-box">
+            <form method="POST">
+                <div class="row mb-3 g-2 align-items-center">
+                    <div class="col-md-3 col-12 d-flex align-items-center">
+                        <span class="result-label">IP Seçimi</span>
+                    </div>
+                    <div class="col-md-8 col-12 d-flex align-items-center gap-2">
+                        <select class="form-select" id="ipSelect">
+                            <option value="">IP Seçin</option>
+                            <option value="127.0.0.1">127.0.0.1 (Localhost)</option>
+                            <option value="192.168.1.1">192.168.1.1 (Modem/Router)</option>
+                            <option value="8.8.8.8">8.8.8.8 (Google DNS)</option>
+                            <option value="45.33.32.156">45.33.32.156 (scanme.nmap.org)</option>
+                        </select>
+                        <input type="text" class="form-control" id="target_ip" name="target_ip"
+                            placeholder="IP adresi girin" value="{{ request.form.target_ip or '' }}" required>
+                    </div>
+                    <div class="col-md-1 col-12 d-grid">
+                        <button class="btn btn-secondary d-flex align-items-center justify-content-center" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#advancedSettings" aria-expanded="false" aria-controls="advancedSettings"
+                            id="advancedBtn" style="height:44px;width:44px;padding:0;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="currentColor" class="bi bi-gear" viewBox="0 0 16 16">
+                                <path d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z"/>
+                                <path d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="collapse mb-3" id="advancedSettings">
+                    <div class="row g-2 align-items-center mb-2">
+                        <div class="col-md-3 col-12 d-flex align-items-center">
+                            <span class="result-label">Port Seçimi</span>
+                        </div>
+                        <div class="col-md-8 col-12 d-flex gap-2">
+                            <select class="form-select" id="portSelect">
+                                <option value="80,443">80, 443 (http, https)</option>
+                                <option value="21-25,53,80,443">21-25, 53, 80, 443</option>
+                                <option value="0-1023">0-1023</option>
+                                <option value="0-65535">0-65535</option>
+                            </select>
+                            <input type="text" class="form-control" id="port_range" name="port_range"
+                                placeholder="Örn: 80,443 veya 20-25" value="{{ request.form.port_range or '80,443' }}">
+                        </div>
+                    </div>
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-3 col-12 d-flex align-items-center">
+                            <span class="result-label">Thread Sayısı</span>
+                        </div>
+                        <div class="col-md-8 col-12 d-flex gap-2">
+                            <select class="form-select" id="threadSelect">
+                                <option value="1">1</option>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                                <option value="100">100</option>
+                            </select>
+                            <input type="number" min="1" max="100" class="form-control" id="thread_count"
+                                name="thread_count" placeholder="Thread sayısı"
+                                value="{{ request.form.thread_count or '1' }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12 d-grid">
+                        <button type="submit" class="btn btn-primary">Taramaya Başla</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        {% if error %}
+        <div class="alert alert-danger mt-4" role="alert" style="border-radius:10px; font-weight:500;">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        {% if results %}
+        <div class="section-box">
+            <h5 class="mb-4">Tarama Sonuçları</h5>
+            <div class="row mb-3">
+                <div class="col-md-6 mb-2">
+                    <label class="result-label">IP Adresi</label>
+                    <input type="text" class="form-control" value="{{ request.form.target_ip }}" readonly>
+                </div>
+                <div class="col-md-6 mb-2">
+                    <label class="result-label">İşletim Sistemi</label>
+                    <input type="text" class="form-control" value="{{ os_guess }}" readonly>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Port</th>
+                            <th>Protokol</th>
+                            <th>Servis</th>
+                            <th>Versiyon</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for port, status in results.items() %}
+                        <tr>
+                            <td>{{ port }}</td>
+                            <td>tcp</td>
+                            <td>{% if status[0] == 'OPEN' %}tcpwrapped{% else %}Bilinmiyor{% endif %}</td>
+                            <td>Bilinmiyor</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Port önerisi seçilince inputa yaz
+        document.getElementById('portSelect').addEventListener('change', function () {
+            if (this.value) {
+                document.getElementById('port_range').value = this.value;
+            }
+        });
+        // IP önerisi seçilince inputa yaz
+        document.getElementById('ipSelect').addEventListener('change', function () {
+            if (this.value) {
+                document.getElementById('target_ip').value = this.value;
+            }
+        });
+        // Gelişmiş ayarlar açılıp kapandığında port ve thread inputlarının required özelliğini yönet
+        var advBtn = document.getElementById('advancedBtn');
+        var advCollapse = document.getElementById('advancedSettings');
+        var portInput = document.getElementById('port_range');
+        var threadSelect = document.getElementById('thread_count');
+        var form = document.querySelector('form');
+        var bsCollapse = new bootstrap.Collapse(advCollapse, { toggle: false });
+        advBtn.addEventListener('click', function () {
+            setTimeout(function () {
+                var isOpen = advCollapse.classList.contains('show');
+                portInput.required = isOpen;
+                threadSelect.required = isOpen;
+                // Eğer açılışta inputlar boşsa default değer ata
+                if (isOpen) {
+                    if (!portInput.value) portInput.value = '80,443';
+                    if (!threadSelect.value) threadSelect.value = '1';
+                    // Hidden input ekle
+                    if (!form.querySelector('input[name="advanced"]')) {
+                        var hidden = document.createElement('input');
+                        hidden.type = 'hidden';
+                        hidden.name = 'advanced';
+                        hidden.value = '1';
+                        form.appendChild(hidden);
+                    }
+                } else {
+                    // Hidden inputu kaldır
+                    var advInput = form.querySelector('input[name="advanced"]');
+                    if (advInput) advInput.remove();
+                }
+            }, 350); // animasyon bitince
+        });
+        // Sayfa yüklenince advanced açıksa required ekle ve defaultları ata
+        window.addEventListener('DOMContentLoaded', function () {
+            var isOpen = advCollapse.classList.contains('show');
+            portInput.required = isOpen;
+            threadSelect.required = isOpen;
+            if (isOpen) {
+                if (!portInput.value) portInput.value = '80,443';
+                if (!threadSelect.value) threadSelect.value = '1';
+                // Hidden input ekle
+                if (!form.querySelector('input[name="advanced"]')) {
+                    var hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = 'advanced';
+                    hidden.value = '1';
+                    form.appendChild(hidden);
+                }
+            }
+        });
+        // Thread önerisi seçilince inputa yaz
+        document.getElementById('threadSelect').addEventListener('change', function () {
+            if (this.value) {
+                document.getElementById('thread_count').value = this.value;
+            }
+        });
+
+        // Form submit işlemi
+        form.addEventListener('submit', function(e) {
+            var loadingOverlay = document.getElementById('loadingOverlay');
+            loadingOverlay.style.display = 'flex';
+        });
+    </script>
+</body>
+
+</html>
