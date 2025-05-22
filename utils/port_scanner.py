@@ -42,7 +42,7 @@ class PortScanner:
     def listen(self):
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
-            s.settimeout(self.timeout)
+            s.settimeout(1)  # Her socket.recvfrom çağrısı için 1 saniye timeout
             
             start_time = time.time()
             while not self.stop_event.is_set() and (time.time() - start_time) < self.timeout:
@@ -69,6 +69,10 @@ class PortScanner:
                         elif flags & 0x14:  # RST + ACK
                             self.responses[src_port] = ('CLOSED', ttl, window)
                 except socket.timeout:
+                    # Her timeout'ta kontrol et
+                    if len(self.responses) == len(self.expected_ports):
+                        self.stop_event.set()
+                        break
                     continue
         except PermissionError:
             self.error = "Raw socket kullanımı için uygulamayı yönetici (admin/root) olarak çalıştırmalısınız."
@@ -125,15 +129,8 @@ class PortScanner:
             for t in threads:
                 t.join(timeout=self.timeout)
 
-        # Tüm portlar için yanıt alındıysa veya timeout olduysa dinleyiciyi durdur
-        while not self.stop_event.is_set():
-            if len(self.responses) == len(self.expected_ports):
-                self.stop_event.set()
-                break
-            time.sleep(0.1)  # CPU kullanımını azaltmak için kısa bekleme
-
         # Dinleyici thread'in bitmesini bekle
-        listener.join(timeout=1)  # 1 saniye yeterli
+        listener.join(timeout=1)
 
         # Eksik portları işaretle
         for port in self.expected_ports:
