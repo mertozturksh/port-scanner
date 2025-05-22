@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request
 from utils.port_scanner import PortScanner
-from utils.utils import get_local_ip, get_form_data, validate_form_data
+from utils.utils import get_local_ip, get_form_data
 
 app = Flask(__name__)
 
@@ -10,9 +10,6 @@ def index():
     if request.method == 'POST':
 
         form_data = get_form_data(request.form)
-        #error = validate_form_data(form_data)
-        #if error:
-        #    return render_template('index.html', error=error)
 
         source_ip = get_local_ip()
         scanner = PortScanner(
@@ -21,8 +18,8 @@ def index():
             port_range=form_data["port_range"],
             thread_count=form_data["thread_count"],
             use_threads=True,
-            socket_timeout=6,  # Her socket.recvfrom için timeout
-            idle_timeout=15     # Genel tarama süresi limiti
+            socket_timeout=10,  # Her socket.recvfrom için timeout
+            idle_timeout=30     # Genel tarama süresi limiti
         )
 
         scan_data = scanner.scan()
