@@ -125,8 +125,15 @@ class PortScanner:
             for t in threads:
                 t.join(timeout=self.timeout)
 
+        # Tüm portlar için yanıt alındıysa veya timeout olduysa dinleyiciyi durdur
+        while not self.stop_event.is_set():
+            if len(self.responses) == len(self.expected_ports):
+                self.stop_event.set()
+                break
+            time.sleep(0.1)  # CPU kullanımını azaltmak için kısa bekleme
+
         # Dinleyici thread'in bitmesini bekle
-        listener.join(timeout=self.timeout)
+        listener.join(timeout=1)  # 1 saniye yeterli
 
         # Eksik portları işaretle
         for port in self.expected_ports:
