@@ -58,7 +58,6 @@ def get_form_data(form):
         "target_ip": form.get("target_ip", "").strip(),
         "port_range": parse_ports(form.get("port_range", "80,443").strip()),
         "thread_count": int(form.get("thread_count", "1").strip()),
-        "timeout": form.get('timeout', 15),
     }
     return data
 

@@ -7,13 +7,14 @@ import time
 from .packet_builder import PacketBuilder
 
 class PortScanner:
-    def __init__(self, target_ip, source_ip, port_range, timeout, thread_count, use_threads):
+    def __init__(self, target_ip, source_ip, port_range, thread_count, use_threads, socket_timeout=3, idle_timeout=6):
         self.target_ip = target_ip
         self.source_ip = source_ip
         self.port_range = port_range
-        self.timeout = timeout
         self.thread_count = min(thread_count, 50)  # Thread sayısını sınırla
         self.use_threads = use_threads
+        self.socket_timeout = socket_timeout  # Her socket.recvfrom için timeout
+        self.idle_timeout = idle_timeout  # Genel tarama süresi limiti
         self.first_ttl = None
         self.first_window = None
         self.port_queue = queue.Queue()
@@ -42,10 +43,10 @@ class PortScanner:
     def listen(self):
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
-            s.settimeout(1)  # Her socket.recvfrom çağrısı için 1 saniye timeout
+            s.settimeout(self.socket_timeout)  # Her socket.recvfrom için timeout
             
             start_time = time.time()
-            while not self.stop_event.is_set() and (time.time() - start_time) < self.timeout:
+            while not self.stop_event.is_set():
                 try:
                     data, addr = s.recvfrom(65535)
                     ip_header = data[0:20]
@@ -71,6 +72,10 @@ class PortScanner:
                 except socket.timeout:
                     # Her timeout'ta kontrol et
                     if len(self.responses) == len(self.expected_ports):
+                        self.stop_event.set()
+                        break
+                    # Eğer idle_timeout süresi içinde yeni yanıt gelmediyse sonlandır
+                    if time.time() - start_time > self.idle_timeout and len(self.responses) > 0:
                         self.stop_event.set()
                         break
                     continue
@@ -127,7 +132,7 @@ class PortScanner:
 
             # Worker thread'lerin bitmesini bekle
             for t in threads:
-                t.join(timeout=self.timeout)
+                t.join(timeout=self.idle_timeout)
 
         # Dinleyici thread'in bitmesini bekle
         listener.join(timeout=1)

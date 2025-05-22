@@ -19,9 +19,10 @@ def index():
             target_ip=form_data["target_ip"],
             source_ip=source_ip,
             port_range=form_data["port_range"],
-            timeout=form_data["timeout"],
             thread_count=form_data["thread_count"],
-            use_threads=True
+            use_threads=True,
+            socket_timeout=3,  # Her socket.recvfrom için timeout
+            idle_timeout=6     # Genel tarama süresi limiti
         )
 
         scan_data = scanner.scan()
