@@ -56,14 +56,10 @@ def parse_ports(port_range_str):
 def get_form_data(form):
     data = {
         "target_ip": form.get("target_ip", "").strip(),
-        "advanced": form.get("advanced") == "1",
-        "port_range": parse_ports(form.get("port_range", "").strip()),
+        "port_range": parse_ports(form.get("port_range", "80,443").strip()),
         "thread_count": int(form.get("thread_count", "1").strip()),
         "timeout": form.get('timeout', 15),
     }
-    if not data["advanced"]:
-        data["port_range"] = [80,443]
-        data["thread_count"] = 1
     return data
 
 def validate_form_data(form_data):

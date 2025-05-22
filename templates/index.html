@@ -157,7 +157,6 @@
         </div>
         <div class="section-box">
             <form method="POST">
-                <input type="hidden" name="advanced" value="0" id="advancedInput">
                 <div class="row mb-3 g-2 align-items-center">
                     <div class="col-md-3 col-12 d-flex align-items-center">
                         <span class="result-label">IP Seçimi</span>
@@ -288,7 +287,6 @@
         var advCollapse = document.getElementById('advancedSettings');
         var portInput = document.getElementById('port_range');
         var threadSelect = document.getElementById('thread_count');
-        var advancedInput = document.getElementById('advancedInput');
         var form = document.querySelector('form');
         var bsCollapse = new bootstrap.Collapse(advCollapse, { toggle: false });
         advBtn.addEventListener('click', function () {
@@ -296,7 +294,6 @@
                 var isOpen = advCollapse.classList.contains('show');
                 portInput.required = isOpen;
                 threadSelect.required = isOpen;
-                advancedInput.value = isOpen ? "1" : "0";
                 // Eğer açılışta inputlar boşsa default değer ata
                 if (isOpen) {
                     if (!portInput.value) portInput.value = '80,443';
@@ -309,7 +306,6 @@
             var isOpen = advCollapse.classList.contains('show');
             portInput.required = isOpen;
             threadSelect.required = isOpen;
-            advancedInput.value = isOpen ? "1" : "0";
             if (isOpen) {
                 if (!portInput.value) portInput.value = '80,443';
                 if (!threadSelect.value) threadSelect.value = '1';
