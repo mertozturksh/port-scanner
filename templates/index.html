@@ -260,7 +260,7 @@
                         <tr>
                             <td>{{ port }}</td>
                             <td>tcp</td>
-                            <td>{% if status[0] == 'OPEN' %}tcpwrapped{% else %}Bilinmiyor{% endif %}</td>
+                            <td>{% if status[0] == 'OPEN' %}OPEN{% elif status[0] == 'CLOSED' %}CLOSED{% else %}-{% endif %}</td>
                             <td>Bilinmiyor</td>
                         </tr>
                         {% endfor %}
