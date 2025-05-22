@@ -21,8 +21,8 @@ def index():
             port_range=form_data["port_range"],
             thread_count=form_data["thread_count"],
             use_threads=True,
-            socket_timeout=3,  # Her socket.recvfrom için timeout
-            idle_timeout=6     # Genel tarama süresi limiti
+            socket_timeout=6,  # Her socket.recvfrom için timeout
+            idle_timeout=15     # Genel tarama süresi limiti
         )
 
         scan_data = scanner.scan()
