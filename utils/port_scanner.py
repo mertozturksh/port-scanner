@@ -89,14 +89,14 @@ class PortScanner:
     def os_guess(ttl):
         if ttl is None:
             return "Bilinmiyor"
-        if ttl <= 64:
-            return "Linux/Unix"
-        elif ttl <= 128:
+        elif 240 <= ttl <= 255:
+            return "Cisco/Unix-like"
+        elif 117 <= ttl <= 128:
             return "Windows"
-        elif ttl <= 255:
-            return "Router / Network Device"
+        elif 61 <= ttl <= 64:
+            return "Linux/macOS"
         else:
-            return "Unknown"
+            return "Bilinmiyor"
 
     def worker(self):
         while not self.port_queue.empty() and not self.stop_event.is_set():
