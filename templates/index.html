@@ -157,6 +157,7 @@
         </div>
         <div class="section-box">
             <form method="POST">
+                <input type="hidden" name="advanced" value="0" id="advancedInput">
                 <div class="row mb-3 g-2 align-items-center">
                     <div class="col-md-3 col-12 d-flex align-items-center">
                         <span class="result-label">IP Seçimi</span>
@@ -252,7 +253,6 @@
                             <th>Port</th>
                             <th>Protokol</th>
                             <th>Servis</th>
-                            <th>Versiyon</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -261,7 +261,6 @@
                             <td>{{ port }}</td>
                             <td>tcp</td>
                             <td>{% if status[0] == 'OPEN' %}OPEN{% elif status[0] == 'CLOSED' %}CLOSED{% else %}-{% endif %}</td>
-                            <td>Bilinmiyor</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -289,6 +288,7 @@
         var advCollapse = document.getElementById('advancedSettings');
         var portInput = document.getElementById('port_range');
         var threadSelect = document.getElementById('thread_count');
+        var advancedInput = document.getElementById('advancedInput');
         var form = document.querySelector('form');
         var bsCollapse = new bootstrap.Collapse(advCollapse, { toggle: false });
         advBtn.addEventListener('click', function () {
@@ -296,22 +296,11 @@
                 var isOpen = advCollapse.classList.contains('show');
                 portInput.required = isOpen;
                 threadSelect.required = isOpen;
+                advancedInput.value = isOpen ? "1" : "0";
                 // Eğer açılışta inputlar boşsa default değer ata
                 if (isOpen) {
                     if (!portInput.value) portInput.value = '80,443';
                     if (!threadSelect.value) threadSelect.value = '1';
-                    // Hidden input ekle
-                    if (!form.querySelector('input[name="advanced"]')) {
-                        var hidden = document.createElement('input');
-                        hidden.type = 'hidden';
-                        hidden.name = 'advanced';
-                        hidden.value = '1';
-                        form.appendChild(hidden);
-                    }
-                } else {
-                    // Hidden inputu kaldır
-                    var advInput = form.querySelector('input[name="advanced"]');
-                    if (advInput) advInput.remove();
                 }
             }, 350); // animasyon bitince
         });
@@ -320,17 +309,10 @@
             var isOpen = advCollapse.classList.contains('show');
             portInput.required = isOpen;
             threadSelect.required = isOpen;
+            advancedInput.value = isOpen ? "1" : "0";
             if (isOpen) {
                 if (!portInput.value) portInput.value = '80,443';
                 if (!threadSelect.value) threadSelect.value = '1';
-                // Hidden input ekle
-                if (!form.querySelector('input[name="advanced"]')) {
-                    var hidden = document.createElement('input');
-                    hidden.type = 'hidden';
-                    hidden.name = 'advanced';
-                    hidden.value = '1';
-                    form.appendChild(hidden);
-                }
             }
         });
         // Thread önerisi seçilince inputa yaz
