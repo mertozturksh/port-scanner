@@ -62,12 +62,14 @@ class PortScanner:
                     window = tcp_hdr[6]
 
                     if src_ip == self.target_ip and src_port in self.port_range and src_port not in self.responses:
-                        if flags & 0x12:  # SYN + ACK
+                        # SYN+ACK kontrolü (0x12 = 00010010)
+                        if (flags & 0x3F) == 0x12:  # Sadece SYN ve ACK bayrakları olmalı
                             if self.first_ttl is None and self.first_window is None:
                                 self.first_ttl = ttl
                                 self.first_window = window
                             self.responses[src_port] = ('OPEN', ttl, window)
-                        elif flags & 0x14:  # RST + ACK
+                        # RST+ACK kontrolü (0x14 = 00010100)
+                        elif (flags & 0x3F) == 0x14:  # Sadece RST ve ACK bayrakları olmalı
                             self.responses[src_port] = ('CLOSED', ttl, window)
                 except socket.timeout:
                     # Her timeout'ta kontrol et
