@@ -142,7 +142,6 @@
 </head>
 
 <body>
-    <!-- Loading overlay -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner-container">
             <div class="spinner"></div>
@@ -192,8 +191,7 @@
                             <select class="form-select" id="portSelect">
                                 <option value="80,443">80, 443 (http, https)</option>
                                 <option value="21-25,53,80,443">21-25, 53, 80, 443</option>
-                                <option value="0-1023">0-1023</option>
-                                <option value="0-65535">0-65535</option>
+                                <option value="1-1023">1-1023</option>
                             </select>
                             <input type="text" class="form-control" id="port_range" name="port_range"
                                 placeholder="Örn: 80,443 veya 20-25" value="{{ request.form.port_range or '80,443' }}">
@@ -207,12 +205,11 @@
                             <select class="form-select" id="threadSelect">
                                 <option value="1">1</option>
                                 <option value="5">5</option>
-                                <option value="10">10</option>
+                                <option value="10" selected>10</option>
                                 <option value="20">20</option>
-                                <option value="50" selected>50</option>
-                                <option value="100">100</option>
+                                <option value="50">50</option>
                             </select>
-                            <input type="number" min="1" max="100" class="form-control" id="thread_count"
+                            <input type="number" min="1" max="50" class="form-control" id="thread_count"
                                 name="thread_count" placeholder="Thread sayısı"
                                 value="{{ request.form.thread_count or '50' }}">
                         </div>
@@ -234,7 +231,10 @@
 
         {% if results %}
         <div class="section-box">
-            <h5 class="mb-4">Tarama Sonuçları</h5>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="mb-0">Tarama Sonuçları</h5>
+                <span style="color: #b0b3b8;">{{ scan_time }} saniye</span>
+            </div>
             <div class="row mb-3">
                 <div class="col-md-6 mb-2">
                     <label class="result-label">IP Adresi</label>
@@ -270,19 +270,16 @@
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Port önerisi seçilince inputa yaz
         document.getElementById('portSelect').addEventListener('change', function () {
             if (this.value) {
                 document.getElementById('port_range').value = this.value;
             }
         });
-        // IP önerisi seçilince inputa yaz
         document.getElementById('ipSelect').addEventListener('change', function () {
             if (this.value) {
                 document.getElementById('target_ip').value = this.value;
             }
         });
-        // Gelişmiş ayarlar açılıp kapandığında port ve thread inputlarının required özelliğini yönet
         var advBtn = document.getElementById('advancedBtn');
         var advCollapse = document.getElementById('advancedSettings');
         var portInput = document.getElementById('port_range');
@@ -294,14 +291,12 @@
                 var isOpen = advCollapse.classList.contains('show');
                 portInput.required = isOpen;
                 threadSelect.required = isOpen;
-                // Eğer açılışta inputlar boşsa default değer ata
                 if (isOpen) {
                     if (!portInput.value) portInput.value = '80,443';
                     if (!threadSelect.value) threadSelect.value = '50';
                 }
-            }, 350); // animasyon bitince
+            }, 350);
         });
-        // Sayfa yüklenince advanced açıksa required ekle ve defaultları ata
         window.addEventListener('DOMContentLoaded', function () {
             var isOpen = advCollapse.classList.contains('show');
             portInput.required = isOpen;
@@ -311,14 +306,12 @@
                 if (!threadSelect.value) threadSelect.value = '50';
             }
         });
-        // Thread önerisi seçilince inputa yaz
         document.getElementById('threadSelect').addEventListener('change', function () {
             if (this.value) {
                 document.getElementById('thread_count').value = this.value;
             }
         });
 
-        // Form submit işlemi
         form.addEventListener('submit', function(e) {
             var loadingOverlay = document.getElementById('loadingOverlay');
             loadingOverlay.style.display = 'flex';

@@ -10,6 +10,8 @@ def index():
     if request.method == 'POST':
 
         form_data = get_form_data(request.form)
+        if form_data.get('error'):
+            return render_template('index.html', error=form_data['error'])
 
         source_ip = get_local_ip()
         scanner = PortScanner(
@@ -18,19 +20,15 @@ def index():
             port_range=form_data["port_range"],
             thread_count=form_data["thread_count"],
             use_threads=True,
-            socket_timeout=10,  # Her socket.recvfrom için timeout
-            idle_timeout=30     # Genel tarama süresi limiti
+            socket_timeout=10,
+            idle_timeout=30
         )
 
         scan_data = scanner.scan()
         error = scan_data.get('error')
-        return render_template('index.html',
-                             results=scan_data['results'],
-                             os_guess=scan_data['os_guess'],
-                             scan_time=scan_data['scan_time'],
-                             error=error)
+        return render_template('index.html', results=scan_data['results'], os_guess=scan_data['os_guess'], scan_time=scan_data['scan_time'], error=error)
     
     return render_template('index.html', error=error)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)

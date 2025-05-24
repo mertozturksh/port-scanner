@@ -11,10 +11,10 @@ class PortScanner:
         self.target_ip = target_ip
         self.source_ip = source_ip
         self.port_range = port_range
-        self.thread_count = min(thread_count, 50)  # Thread sayısını sınırla
+        self.thread_count = min(thread_count, 50)
         self.use_threads = use_threads
-        self.socket_timeout = socket_timeout  # Her socket.recvfrom için timeout
-        self.idle_timeout = idle_timeout  # Genel tarama süresi limiti
+        self.socket_timeout = socket_timeout
+        self.idle_timeout = idle_timeout
         self.first_ttl = None
         self.first_window = None
         self.port_queue = queue.Queue()
@@ -34,7 +34,7 @@ class PortScanner:
 
             s.sendto(packet, (self.target_ip, 0))
             self.expected_ports.append(dst_port)
-            s.close()  # Socket'i hemen kapat
+            s.close()
         except PermissionError:
             self.error = "Raw socket kullanımı için uygulamayı yönetici (admin/root) olarak çalıştırmalısınız."
             self.stop_event.set()
@@ -43,7 +43,7 @@ class PortScanner:
     def listen(self):
         try:
             s = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_TCP)
-            s.settimeout(self.socket_timeout)  # Her socket.recvfrom için timeout
+            s.settimeout(self.socket_timeout)
             
             start_time = time.time()
             while not self.stop_event.is_set():
@@ -63,20 +63,18 @@ class PortScanner:
 
                     if src_ip == self.target_ip and src_port in self.port_range and src_port not in self.responses:
                         # SYN+ACK kontrolü (0x12 = 00010010)
-                        if (flags & 0x3F) == 0x12:  # Sadece SYN ve ACK bayrakları olmalı
+                        if (flags & 0x3F) == 0x12:
                             if self.first_ttl is None and self.first_window is None:
                                 self.first_ttl = ttl
                                 self.first_window = window
                             self.responses[src_port] = ('OPEN', ttl, window)
                         # RST+ACK kontrolü (0x14 = 00010100)
-                        elif (flags & 0x3F) == 0x14:  # Sadece RST ve ACK bayrakları olmalı
+                        elif (flags & 0x3F) == 0x14:
                             self.responses[src_port] = ('CLOSED', ttl, window)
                 except socket.timeout:
-                    # Her timeout'ta kontrol et
                     if len(self.responses) == len(self.expected_ports):
                         self.stop_event.set()
                         break
-                    # Eğer idle_timeout süresi içinde yeni yanıt gelmediyse sonlandır
                     if time.time() - start_time > self.idle_timeout and len(self.responses) > 0:
                         self.stop_event.set()
                         break
@@ -105,7 +103,7 @@ class PortScanner:
             try:
                 port = self.port_queue.get_nowait()
                 self.send_syn(port)
-                time.sleep(0.001)  # Çok kısa bir bekleme
+                time.sleep(0.001)
             except queue.Empty:
                 break
             except Exception as e:
@@ -114,16 +112,13 @@ class PortScanner:
                 break
 
     def run(self):
-        # Port kuyruğunu doldur
         for p in self.port_range:
             self.port_queue.put(p)
 
-        # Dinleyici thread'i başlat
         listener = threading.Thread(target=self.listen)
         listener.daemon = True
         listener.start()
 
-        # Worker thread'leri başlat
         if self.use_threads:
             threads = []
             for _ in range(self.thread_count):
@@ -132,14 +127,11 @@ class PortScanner:
                 t.start()
                 threads.append(t)
 
-            # Worker thread'lerin bitmesini bekle
             for t in threads:
                 t.join(timeout=self.idle_timeout)
 
-        # Dinleyici thread'in bitmesini bekle
         listener.join(timeout=1)
 
-        # Eksik portları işaretle
         for port in self.expected_ports:
             if port not in self.responses:
                 self.responses[port] = ('NO RESPONSE', None, None)
@@ -156,4 +148,4 @@ class PortScanner:
             'first_ttl': self.first_ttl,
             'first_window': self.first_window,
             'error': self.error
-        } 
+        }

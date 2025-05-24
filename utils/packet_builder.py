@@ -105,4 +105,4 @@ class PacketBuilder:
             checksum_tcp,
             urg_ptr
         )
-        return tcp_header 
+        return tcp_header
