@@ -250,16 +250,28 @@
                     <thead>
                         <tr>
                             <th>Port</th>
-                            <th>Protokol</th>
                             <th>Durum</th>
+                            <th>Servis</th>
+                            <th>TTL</th>
+                            <th>Window Size</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for port, status in results.items() %}
+                        {% for port, data in results.items()|sort %}
                         <tr>
                             <td>{{ port }}</td>
-                            <td>tcp</td>
-                            <td>{% if status[0] == 'OPEN' %}OPEN{% elif status[0] == 'CLOSED' %}CLOSED{% else %}-{% endif %}</td>
+                            <td>
+                                {% if data.status == 'OPEN' %}
+                                <span class="badge bg-success">Açık</span>
+                                {% elif data.status == 'CLOSED' %}
+                                <span class="badge bg-danger">Kapalı</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Yanıt Yok</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ data.service or 'Bilinmiyor' }}</td>
+                            <td>{{ data.ttl or '-' }}</td>
+                            <td>{{ data.window or '-' }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

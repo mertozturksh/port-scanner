@@ -26,7 +26,22 @@ def index():
 
         scan_data = scanner.scan()
         error = scan_data.get('error')
-        return render_template('index.html', results=scan_data['results'], os_guess=scan_data['os_guess'], scan_time=scan_data['scan_time'], error=error)
+        
+        # Sonuçları düzenle
+        formatted_results = {}
+        for port, (status, ttl, window, service) in scan_data['results'].items():
+            formatted_results[port] = {
+                'status': status,
+                'ttl': ttl,
+                'window': window,
+                'service': service
+            }
+            
+        return render_template('index.html', 
+                             results=formatted_results, 
+                             os_guess=scan_data['os_guess'], 
+                             scan_time=scan_data['scan_time'], 
+                             error=error)
     
     return render_template('index.html', error=error)
 

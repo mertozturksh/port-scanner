@@ -153,6 +153,15 @@ def main():
     print("\nPort Durumları:")
     print(create_table(["Durum", "Sayı", "Portlar"], port_status))
 
+    # Açık portların detaylı bilgilerini göster
+    if open_ports:
+        print("\nAçık Port Detayları:")
+        port_details = []
+        for port in sorted(open_ports):
+            status, ttl, window, service = results['results'][port]
+            port_details.append([port, service or "Bilinmiyor"])
+        print(create_table(["Port", "Servis"], port_details))
+
 if __name__ == "__main__":
     try:
         main()

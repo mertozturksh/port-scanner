@@ -136,13 +136,27 @@ class PortScanner:
             if port not in self.responses:
                 self.responses[port] = ('NO RESPONSE', None, None)
 
+    @staticmethod
+    def get_service_name(port):
+        try:
+            return socket.getservbyport(port)
+        except:
+            return "Bilinmiyor"
+
     def scan(self):
         start_time = time.time()
         self.run()
         scan_time = time.time() - start_time
         os_guess = self.os_guess(self.first_ttl)
+        
+        # Servis bilgilerini ekle
+        results_with_services = {}
+        for port, (status, ttl, window) in self.responses.items():
+            service = self.get_service_name(port) if status == 'OPEN' else None
+            results_with_services[port] = (status, ttl, window, service)
+            
         return {
-            'results': self.responses,
+            'results': results_with_services,
             'os_guess': os_guess,
             'scan_time': round(scan_time, 2),
             'first_ttl': self.first_ttl,
