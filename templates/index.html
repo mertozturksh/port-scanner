@@ -270,21 +270,21 @@
                                 {% endif %}
                             </td>
                             <td>
-                                {% if data.status != 'NO RESPONSE' %}
+                                {% if data.status != 'OPEN' or data.status != 'CLOSED' %}
                                     {{ data.service or 'Bilinmiyor' }}
                                 {% else %}
                                     -
                                 {% endif %}
                             </td>
                             <td>
-                                {% if data.status != 'NO RESPONSE' %}
+                                {% if data.status != 'OPEN' or data.status != 'CLOSED'' %}
                                     {{ data.ttl or '-' }}
                                 {% else %}
                                     -
                                 {% endif %}
                             </td>
                             <td>
-                                {% if data.status != 'NO RESPONSE' %}
+                                {% if data.status != 'OPEN' or data.status != 'CLOSED' %}
                                     {{ data.window or '-' }}
                                 {% else %}
                                     -
