@@ -149,7 +149,6 @@ class PortScanner:
         scan_time = time.time() - start_time
         os_guess = self.os_guess(self.first_ttl)
         
-        # Servis bilgilerini ekle
         results_with_services = {}
         for port, (status, ttl, window) in self.responses.items():
             service = self.get_service_name(port) if status == 'OPEN' else None

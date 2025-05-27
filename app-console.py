@@ -137,7 +137,7 @@ def main():
     closed_ports = []
     no_response = []
 
-    for port, (status, ttl, window) in sorted(results['results'].items()):
+    for port, (status, ttl, window, service) in sorted(results['results'].items()):
         if status == 'OPEN':
             open_ports.append(port)
         elif status == 'CLOSED':
@@ -153,7 +153,6 @@ def main():
     print("\nPort Durumları:")
     print(create_table(["Durum", "Sayı", "Portlar"], port_status))
 
-    # Açık portların detaylı bilgilerini göster
     if open_ports:
         print("\nAçık Port Detayları:")
         port_details = []
