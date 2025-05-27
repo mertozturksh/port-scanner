@@ -49,7 +49,12 @@ Uygulamayı test etmek için hedef sistemde port açabilirsiniz:
    nc -lvnp 8000
    ```
 
-3. ctrl+c ile işlemi sonlandırın ve port dinlemeyi kapatın.
+3. Açık portları listeleyin:
+   ```bash
+   ss -tuln
+   ```
+
+4. CTRL + C ile işlemi sonlandırın ve port dinlemeyi kapatın.
 
 ## Güvenlik Uyarısı
 
