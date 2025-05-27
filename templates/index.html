@@ -269,9 +269,27 @@
                                 <span class="badge bg-secondary">Yanıt Yok</span>
                                 {% endif %}
                             </td>
-                            <td>{{ data.service or 'Bilinmiyor' }}</td>
-                            <td>{{ data.ttl or '-' }}</td>
-                            <td>{{ data.window or '-' }}</td>
+                            <td>
+                                {% if data.status != 'NO RESPONSE' %}
+                                    {{ data.service or 'Bilinmiyor' }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if data.status != 'NO RESPONSE' %}
+                                    {{ data.ttl or '-' }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if data.status != 'NO RESPONSE' %}
+                                    {{ data.window or '-' }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
